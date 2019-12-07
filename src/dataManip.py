@@ -2,10 +2,10 @@
 import csv
 
 
-def readData(mapfile, graph):
+def readData(mapfile):
     '''read the data and return graph'''
     cities = None
-
+    graph = dict()
     with open(mapfile, 'r') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
         for idx, row in enumerate(csv_reader):
@@ -17,3 +17,4 @@ def readData(mapfile, graph):
                     graph[row[0]][city] = int(row[idx+1])
 
     print(graph)
+    return graph
