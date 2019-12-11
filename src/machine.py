@@ -13,7 +13,8 @@ import curses
 # global function
 
 
-def sigmoid(dE, T): return 1 / (1 + math.exp(dE/T))
+def sigmoid(dE, T):
+    return 1 / (1 + math.exp(dE/T))
 
 # # Primary classes for representing the components of a boltzmann machines
 #
@@ -251,7 +252,7 @@ class boltzmann():
 
         header = '-- network state --\n  '
         for e in range(epochs):
-            header += ' %s' % (e+1)
+            header += f' {e+1}'
         print_str = header + '\n'
 
         for i in range(cities):
@@ -353,7 +354,7 @@ def print_tour(states, node_map):
     """
     insert = '->'
     tour = get_tour(states)
-    print_str = '%s' % node_map[tour[0]]
+    print_str = f'{node_map[tour[0]]}'
     for i in tour[1:]:
         print_str += (insert + node_map[i])
 
@@ -400,11 +401,11 @@ def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
         del cities_left[selected]
     # add the first city added to end of the list
     machine.network[first_city, cities].set_state(1)
-    print('-- annealing %s --' % machine)
+    print(f'-- annealing {machine} --')
 
     # the temperature schedule starts here
     while T > stop_T:
-        print('iterating, current T=%s...' % T)
+        print(f'iterating, current T={T}...')
 
         # randomnly select a node and generate a new proposed state
         activate, deactivate = machine.get_next_nodes()
@@ -439,15 +440,15 @@ def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
 
         yield [str(T), machine.print_tour(), str(machine.get_distance())]
         print(machine.print_tour())
-        print('distance=%s' % machine.get_distance())
+        print(f'distance={machine.get_distance()}')
 
         T -= schedule(T)
 
     print('-- annealing complete --')
-    print('final T: %s' % T)
+    print(f'final T: {T}')
     print('minimum:')
-    print('\ttour = %s' % print_tour(min_conf, machine.node_map))
-    print('\tdistance = %s' % min_dist)
+    print(f'\ttour = {print_tour(min_conf, machine.node_map)}')
+    print(f'\tdistance = {min_dist}')
     print('final:')
-    print('\ttour = %s' % machine.print_tour())
-    print('\tdistance = %s' % machine.get_distance())
+    print(f'\ttour = { machine.print_tour()}')
+    print(f'\tdistance = {machine.get_distance()}')

@@ -36,11 +36,13 @@ if __name__ == '__main__':
         hamiltonian_error_charge=h_charge, bias_charge=b_charge)
 
     # inputfile = './data/map.csv'
-    # distances = dm.readData(inputfile)
+    # distances = np.array(dm.readData(inputfile))
 
     # print(graph.keys())
     # testdist = graph['BocaRaton']['Clearwater']
     # print(f'Distance from Boca Raton to Clearwater is {testdist} mile')
+
+    print(distances)
 
     # create the network using the distances as the foundation for the weight matrices
     b.create_network(distances)

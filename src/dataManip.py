@@ -29,5 +29,5 @@ def readData(mapfile):
             if index > 0:
                 graph.append(row[1:])
 
-    print(graph)
+    # print(graph)
     return graph
