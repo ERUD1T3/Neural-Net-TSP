@@ -13,7 +13,7 @@ def sigmoid(dE, T):
     return 1 / (1 + math.exp(dE/T))
 
 
-class node():
+class node:
     '''
     Node class to simulate a city for TSP
     '''
@@ -36,7 +36,7 @@ class node():
         self.state = state
 
 
-class boltzmann():
+class boltzmann:
     '''Boltzmann machine for traveling salesman problem'''
 
     def __init__(self,
@@ -331,6 +331,8 @@ def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
     T (float): starting temperature
     schedule (lambda): function to apply to T after each cycle
     '''
+
+    print('trying to anneal!')
     stop_T = 1
     min_dist = np.inf
     min_conf = None
@@ -386,7 +388,8 @@ def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
             min_dist = final_dist
             min_conf = machine.get_states()
 
-        yield [str(T), machine.print_tour(), str(machine.get_distance())]
+        # yield [str(T), machine.print_tour(), str(machine.get_distance())]
+        print([str(T), machine.print_tour(), str(machine.get_distance())])
         print(machine.print_tour())
         print(f'distance={machine.get_distance()}')
 

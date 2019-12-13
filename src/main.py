@@ -1,9 +1,9 @@
 
-import machine
+from machine import anneal, boltzmann
+from dataManip import readData
 import math
 import numpy as np
 import sys
-import dataManip as dm
 
 # the distance matrix to be used in the
 # traveling salesman problem
@@ -27,7 +27,7 @@ distances = distances + distances.T
 if __name__ == '__main__':
 
     if len(sys.argv) != 3:
-        T = 500
+        T = 5000
         h_charge = 0.5
         b_charge = -0.2
     else:
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # assigned to any edge that will violate the hamiltonian, and a bias_charge
     # as the weight assigned to the loop edges (points the node to itself) --
     # this effectively acts as the bias term in the consensus function
-    b = machine.boltzmann(
+    b = boltzmann(
         hamiltonian_error_charge=h_charge, bias_charge=b_charge)
 
     print(distances)
@@ -49,5 +49,8 @@ if __name__ == '__main__':
 
     # anneal the network starting at temperature T and a schedule function that
     # decrements T after every cycle
-    machine.anneal(b, T=T, schedule=lambda T: math.log10(T)
-                   if T > 100 else 0.1)
+
+    try:
+        anneal(b, T, lambda T: math.log10(T) if T > 10 else 0.1)
+    except Exception as e:
+        print(e)
