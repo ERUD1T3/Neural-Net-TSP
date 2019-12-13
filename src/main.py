@@ -17,10 +17,17 @@ distances = np.matrix([
 # making it symmetric for ease of use
 distances = distances + distances.T
 
+# inputfile = './data/map.csv'
+# distances = np.array(dm.readData(inputfile))
+# print(graph.keys())
+# testdist = graph['BocaRaton']['Clearwater']
+# print(f'Distance from Boca Raton to Clearwater is {testdist} mile')
+
+
 if __name__ == '__main__':
 
     if len(sys.argv) != 3:
-        T = 5000
+        T = 500
         h_charge = 0.5
         b_charge = -0.2
     else:
@@ -34,13 +41,6 @@ if __name__ == '__main__':
     # this effectively acts as the bias term in the consensus function
     b = machine.boltzmann(
         hamiltonian_error_charge=h_charge, bias_charge=b_charge)
-
-    # inputfile = './data/map.csv'
-    # distances = np.array(dm.readData(inputfile))
-
-    # print(graph.keys())
-    # testdist = graph['BocaRaton']['Clearwater']
-    # print(f'Distance from Boca Raton to Clearwater is {testdist} mile')
 
     print(distances)
 

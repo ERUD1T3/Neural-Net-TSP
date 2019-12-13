@@ -1,8 +1,5 @@
-# file to build the neural network for solving the Traveling salesman problem
-#
 # A Boltzmann Machines attempting
 # to solve Traveling Salesman Problems
-#
 
 import math
 import random
@@ -10,80 +7,61 @@ import string
 import numpy as np
 import curses
 
-# global function
-
 
 def sigmoid(dE, T):
+    '''sigmoid activation fuctions'''
     return 1 / (1 + math.exp(dE/T))
-
-# # Primary classes for representing the components of a boltzmann machines
-#
 
 
 class node():
-    """Abstract class to represent a city in the travelling
-    salesman problem
-    """
+    '''
+    Node class to simulate a city for TSP
+    '''
 
-    def __init__(self,
-                 state=0):
-        """Initialize the node
-        """
+    def __init__(self, state=0, weights=None):
+        '''Initialiaze city node'''
         self.state = state
-        self.weights = []
+        self.weights = weights
 
     def get_value(self, states):
-        """Returns the sums of the weights * states provided
-
-        Args:
-            states (np.matrix): states of connected nodes (binary representation)
-
-        Returns:
-            sum (float): sum of weights * states
-        """
+        '''Returns the sums of the weights * states provided'''
         return np.sum(self.weights[states == 1]) * self.state
 
     def get_state(self):
-        """Returns current state
-        """
+        '''Returns current state'''
         return self.state
 
     def set_state(self, state):
-        """Sets the node state
-        """
+        '''Sets the node state'''
         self.state = state
-        return
 
 
 class boltzmann():
-    """The boltzmann machine object, equipped with the necessary tools 
-    to perform simulated annealing on traveling salesman problems
-    """
+    '''Boltzmann machine for traveling salesman problem'''
 
     def __init__(self,
                  get_state_values=np.vectorize(lambda n: n.get_state()),
                  hamiltonian_error_charge=0.1,
                  bias_charge=-0.2):
-        """Initializes the boltzmann machine with needed configurations
-
-        Args:
-            get_state_values (np.vectorize): mapping function to create a state matrix given a matrix of nodes
-            hamiltonian_error_charge (float): weight charge against breaking hamiltonian requirements
-            bias_charge (float): weight charge that favors at least one node within an epoch activating
-        """
-
+        '''
+        Initializes the boltzmann machine with needed configurations
+        get_state_values (np.vectorize): mapping function to create a state matrix given a matrix of nodes
+        hamiltonian_error_charge (float): weight charge against breaking hamiltonian requirements
+        bias_charge (float): weight charge that favors at least one node within an epoch activating
+        '''
         self.get_state_values = get_state_values
         self.hamiltonian_error_charge = hamiltonian_error_charge
         self.bias_charge = bias_charge
 
     def create_network(self, distances, node_map=string.ascii_uppercase):
-        """Creates a network and configures the nodes of the network according
+        '''
+        Creates a network and configures the nodes of the network according
         to a pre-defined use of its distance matrix
+        distances (array): distance matrix representing the travel distances between any nodes
+        node_map (np.matrix): dictionary storing the titles for each node (city)
 
-        Args:
-            distances (array): distance matrix representing the travel distances between any nodes
-            node_map (np.matrix): dictionary storing the titles for each node (city)
-        """
+        '''
+
         # store a dictionary to identify the
         # nodes within the network
         self.node_map = node_map
@@ -147,32 +125,21 @@ class boltzmann():
                                                   epoch] = self.bias_charge
 
     def get_states(self):
-        """Returns a matrix of node states representing the current network
-
-        Returns:
-            (np.matrix): node state values
-        """
+        '''returns a matrix of node states representing the current network'''
         return self.get_state_values(self.network)
 
     def get_distance(self):
-        """Returns travel distance of current network, if it makes a hamiltonian tour (HT)
-
-        Returns:
-            distance (float): total distance traveled in current network
-        """
+        '''Returns travel distance of current network, if it makes a hamiltonian tour (HT)'''
         return get_distance(self.get_states(), self.distances)
 
     def get_proposed_states(self, activate, deactivate):
-        """Generates a matrix that represents a new proposed states by flipping
+        '''
+        Generates a matrix that represents a new proposed states by flipping
         the activated states and the deactivated states
-
-        Args:
-            activate ([int,int]): indices of the nodes to be activated
-            activate ([int,int]): indices of the nodes to be deactivated
-
-        Returns:
-            proposed_states (np.matrix): new state matrix with flipped node state
-        """
+        activate ([int,int]): indices of the nodes to be activated
+        activate ([int,int]): indices of the nodes to be deactivated
+        proposed_states (np.matrix): new state matrix with flipped node state
+        '''
         proposed_states = np.matrix(self.get_states())
         for deactive in deactivate:
             proposed_states[deactive[0], deactive[1]] = 0
@@ -182,19 +149,17 @@ class boltzmann():
         return proposed_states
 
     def get_consensus(self):
-        """Computes the consensus value of the current network
-        """
+        '''Computes the consensus value of the current network'''
         get_values = np.vectorize(lambda n: n.get_value(self.get_states()))
         total = np.sum(get_values(self.network))
         return total
 
     def get_next_nodes(self):
-        """Returns the next randomnly-selected node within the current network
-
-        Returns:
-            activate (array[int,int]): indices of nodes to turn on
-            deactivate (array[int,int]): indices of nodes to turn off
-        """
+        '''
+        Returns the next randomnly-selected node within the current network
+        activate (array[int,int]): indices of nodes to turn on
+        deactivate (array[int,int]): indices of nodes to turn off
+        '''
         cities, epochs = self.network.shape
         current_states = self.get_states()
 
@@ -221,16 +186,13 @@ class boltzmann():
         return activate, deactivate
 
     def propose_states(self, dE, T):
-        """Proposes to the node to change state, and the node
+        '''
+        Proposes to the node to change state, and the node
         follows the Metropolis Acceptance Criterion
-
-        Args:
-            dE (float): change in objective value with the node changing state
-            T (float): current temperature in annealing process
-
-        Returns:
-            acceptance (bool): whether or not the new states should be accepted
-        """
+        dE (float): change in objective value with the node changing state
+        T (float): current temperature in annealing process
+        acceptance (bool): whether or not the new states should be accepted
+        '''
         if dE <= 0:
             return True
         else:
@@ -242,11 +204,7 @@ class boltzmann():
                 return False
 
     def print_states(self):
-        """Prints out the current state matrix in readable format
-
-        Returns:
-            states (str): string-formatted representation of the current states
-        """
+        '''returns and Prints out the current state matrix in readable format'''
         states = self.get_states()
         cities, epochs = states.shape
 
@@ -261,11 +219,7 @@ class boltzmann():
         return print_str
 
     def print_tour(self):
-        """Prints the hamiltonian tour in a readable format
-
-        Returns:
-            tour (str): string-formatted representation of the tour taken
-        """
+        '''prints the hamiltonian tour in a readable format'''
         return print_tour(self.get_states(), self.node_map)
 
 #
@@ -275,11 +229,10 @@ class boltzmann():
 
 
 def hamiltonian(states):
-    """Checks that the given state matrix creates a valid hamiltonian tour (HT)
-
-    Returns:
-        status (bool): True if the state matrix creates a HT; False otherwise
-    """
+    '''
+    Checks that the given state matrix creates a valid hamiltonian tour (HT)
+    Returns status (bool): True if the state matrix creates a HT; False otherwise
+    '''
     cities, epochs = states.shape
     tour = {}
     for t in range(epochs):
@@ -303,15 +256,13 @@ def hamiltonian(states):
 
 
 def get_distance(states, distances):
-    """Returns the distance traveled by a state matrix given the distance matrix
+    '''
+    Returns the distance traveled by a state matrix given the distance matrix
+    states (np.matrix): state matrix representing nodes visited along a tour
+    distances (np.matrix): distance matrix describing the distance between any two nodes
 
-    Args:
-        states (np.matrix): state matrix representing nodes visited along a tour
-        distances (np.matrix): distance matrix describing the distance between any two nodes
-
-    Returns:
-        distance (float): total distance traveled on the hamiltonian tour
-    """
+    Returns distance (float): total distance traveled on the hamiltonian tour
+    '''
     tour = get_tour(states)
     distance = 0
     for i, stop in enumerate(tour[1:]):
@@ -321,12 +272,12 @@ def get_distance(states, distances):
 
 
 def get_tour(states):
-    """Create a string sequence cities traveled at each epoch to
+    '''
+    Create a string sequence cities traveled at each epoch to
     represent the hamiltonian tour
 
-    Returns:
-        tour (string): the active tour in the current network
-    """
+    Returns tour (string): the active tour in the current network
+    '''
     if not hamiltonian(states):  # if a HT hasn't been completed, then distance can't be computed
         return 'hamiltonian tour not complete'
 
@@ -344,14 +295,12 @@ def get_tour(states):
 
 
 def print_tour(states, node_map):
-    """Prints the tour in a readable format
-
-    Args:
-        states (np.matrix): state matrix
-        node_map (dict): dictionary of city titles for each node
-    Returns:
-        tour (str): string-formatted representation of the your taken
-    """
+    '''
+    Prints the tour in a readable format
+    states (np.matrix): state matrix
+    node_map (dict): dictionary of city titles for each node
+    Returns tour (str): string-formatted representation of the your taken
+    '''
     insert = '->'
     tour = get_tour(states)
     print_str = f'{node_map[tour[0]]}'
@@ -362,29 +311,26 @@ def print_tour(states, node_map):
 
 
 def consensus(states, network):
-    """Consensus function, computing the summated values of weights and states between
+    '''
+    Consensus function, computing the summated values of weights and states between
     every node (city,epoch) in the network
+    states (np.matrix): matrix representing the states of the nodes provided
+    network (np.matrix): matrix of nodes holding the weights
 
-    Args:
-        states (np.matrix): matrix representing the states of the nodes provided
-        network (np.matrix): matrix of nodes holding the weights
-
-    Returns:
-        total (int): total consensus value
-    """
+    Returns total (int) consensus value
+    '''
     get_values = np.vectorize(lambda n: n.get_value(states))
     total = 0.5 * np.sum(get_values(network))
     return total
 
 
 def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
-    """Simulated annealing function on a boltzmann machine (or Hopfield network, in general)
-
-    Args:
-        machine (boltzmann): machine with network of nodes to be optimized
-        T (float): starting temperature
-        schedule (lambda): function to apply to T after each cycle
-    """
+    '''
+    Simulated annealing function on a boltzmann machine
+    machine (boltzmann): machine with network of nodes to be optimized
+    T (float): starting temperature
+    schedule (lambda): function to apply to T after each cycle
+    '''
     stop_T = 1
     min_dist = np.inf
     min_conf = None
@@ -393,12 +339,14 @@ def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
     cities, epochs = machine.get_states().shape
     cities_left = [i for i in range(cities)]
     first_city = 0
+
     for i in range(cities):  # place the cities in random order across epochs
         selected = random.randint(0, len(cities_left)-1)
         machine.network[cities_left[selected], i].set_state(1)
         if i == 0:
             first_city = selected
         del cities_left[selected]
+
     # add the first city added to end of the list
     machine.network[first_city, cities].set_state(1)
     print(f'-- annealing {machine} --')
