@@ -7,18 +7,18 @@ import sys
 
 # the distance matrix to be used in the
 # traveling salesman problem
-distances = np.matrix([
-    [0, 10, 20, 5, 18],
-    [0, 0, 15, 32, 10],
-    [0, 0, 0, 25, 16],
-    [0, 0, 0, 0, 35],
-    [0, 0, 0, 0, 0]
-])
-# making it symmetric for ease of use
-distances = distances + distances.T
+# distances = np.matrix([
+#     [0, 10, 20, 5, 18],
+#     [0, 0, 15, 32, 10],
+#     [0, 0, 0, 25, 16],
+#     [0, 0, 0, 0, 35],
+#     [0, 0, 0, 0, 0]
+# ])
+# # making it symmetric for ease of use
+# distances = distances + distances.T
 
-# inputfile = './data/map.csv'
-# distances = np.array(dm.readData(inputfile))
+inputfile = './data/mapCorrected.csv'
+distances = np.matrix(readData(inputfile))
 # print(graph.keys())
 # testdist = graph['BocaRaton']['Clearwater']
 # print(f'Distance from Boca Raton to Clearwater is {testdist} mile')
@@ -27,7 +27,7 @@ distances = distances + distances.T
 if __name__ == '__main__':
 
     if len(sys.argv) != 3:
-        T = 5000
+        T = 10000
         h_charge = 0.5
         b_charge = -0.2
     else:

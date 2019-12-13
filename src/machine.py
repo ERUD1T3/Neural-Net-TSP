@@ -64,7 +64,15 @@ class boltzmann:
 
         # store a dictionary to identify the
         # nodes within the network
-        self.node_map = node_map
+        # self.node_map = node_map
+        self.node_map = ['BocaRaton', 'Clearwater', 'DaytonaBeach', 'Ft.Lauderdale',
+                         'Ft.Myers', 'Ft.Pierce', 'Gainesville', 'Jacksonville',
+                         'KeyWest', 'Kissimmee', 'LakeCity', 'Miami',
+                         'Naples', 'NewSmyrnaBch', 'Okeechobee', 'Orlando',
+                         'PanamaCity', 'Pensacola', 'St.Augustine', 'St.Petersburg',
+                         'Sarasota', 'Tallahassee', 'Tampa', 'WestPalmBeach',
+                         'WinterHaven']
+        print(f'node map ={node_map}')
 
         # number of cities
         n_count = np.size(distances, 0)
@@ -400,6 +408,6 @@ def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
     print('minimum:')
     print(f'\ttour = {print_tour(min_conf, machine.node_map)}')
     print(f'\tdistance = {min_dist}')
-    print('final:')
-    print(f'\ttour = { machine.print_tour()}')
-    print(f'\tdistance = {machine.get_distance()}')
+    # print('final:')
+    # print(f'\ttour = { machine.print_tour()}')
+    # print(f'\tdistance = {machine.get_distance()}')

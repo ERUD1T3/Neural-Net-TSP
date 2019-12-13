@@ -12,4 +12,8 @@ def readData(mapfile):
                 graph.append(row[1:])
 
     # print(graph)
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            graph[i][j] = int(graph[i][j])
+
     return graph
