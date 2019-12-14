@@ -3,14 +3,8 @@
 
 import math
 import random
-import string
 import numpy as np
-import curses
-
-
-def sigmoid(dE, T):
-    '''sigmoid activation fuctions'''
-    return 1 / (1 + math.exp(dE/T))
+import utils
 
 
 class node:
@@ -53,7 +47,7 @@ class boltzmann:
         self.hamiltonian_error_charge = hamiltonian_error_charge
         self.bias_charge = bias_charge
 
-    def create_network(self, distances, node_map=string.ascii_uppercase):
+    def create_network(self, distances, node_map=None):
         '''
         Creates a network and configures the nodes of the network according
         to a pre-defined use of its distance matrix
@@ -65,14 +59,18 @@ class boltzmann:
         # store a dictionary to identify the
         # nodes within the network
         # self.node_map = node_map
-        self.node_map = ['BocaRaton', 'Clearwater', 'DaytonaBeach', 'Ft.Lauderdale',
-                         'Ft.Myers', 'Ft.Pierce', 'Gainesville', 'Jacksonville',
-                         'KeyWest', 'Kissimmee', 'LakeCity', 'Miami',
-                         'Naples', 'NewSmyrnaBch', 'Okeechobee', 'Orlando',
-                         'PanamaCity', 'Pensacola', 'St.Augustine', 'St.Petersburg',
-                         'Sarasota', 'Tallahassee', 'Tampa', 'WestPalmBeach',
-                         'WinterHaven']
-        print(f'node map ={node_map}')
+
+        if node_map is None:
+            node_map = ['BocaRaton', 'Clearwater', 'DaytonaBeach', 'Ft.Lauderdale',
+                        'Ft.Myers', 'Ft.Pierce', 'Gainesville', 'Jacksonville',
+                        'KeyWest', 'Kissimmee', 'LakeCity', 'Miami',
+                        'Naples', 'NewSmyrnaBch', 'Okeechobee', 'Orlando',
+                        'PanamaCity', 'Pensacola', 'St.Augustine', 'St.Petersburg',
+                        'Sarasota', 'Tallahassee', 'Tampa', 'WestPalmBeach',
+                        'WinterHaven']
+
+        self.node_map = node_map
+        # print(f'node map ={node_map}')
 
         # number of cities
         n_count = np.size(distances, 0)
@@ -138,7 +136,7 @@ class boltzmann:
 
     def get_distance(self):
         '''Returns travel distance of current network, if it makes a hamiltonian tour (HT)'''
-        return get_distance(self.get_states(), self.distances)
+        return utils.get_distance(self.get_states(), self.distances)
 
     def get_proposed_states(self, activate, deactivate):
         '''
@@ -168,7 +166,7 @@ class boltzmann:
         activate (array[int,int]): indices of nodes to turn on
         deactivate (array[int,int]): indices of nodes to turn off
         '''
-        cities, epochs = self.network.shape
+        _, epochs = self.network.shape
         current_states = self.get_states()
 
         # choose the nodes to switch across two epochs
@@ -205,7 +203,7 @@ class boltzmann:
             return True
         else:
             prob = (1/self.network.size) * \
-                math.log10(T) * sigmoid(math.exp(dE), T)
+                math.log10(T) * utils.sigmoid(math.exp(dE), T)
             if random.random() < prob:
                 return True
             else:
@@ -228,108 +226,7 @@ class boltzmann:
 
     def print_tour(self):
         '''prints the hamiltonian tour in a readable format'''
-        return print_tour(self.get_states(), self.node_map)
-
-#
-# Supporting functions for simulated annealing
-# on boltzmann machines
-#
-
-
-def hamiltonian(states):
-    '''
-    Checks that the given state matrix creates a valid hamiltonian tour (HT)
-    Returns status (bool): True if the state matrix creates a HT; False otherwise
-    '''
-    cities, epochs = states.shape
-    tour = {}
-    for t in range(epochs):
-        # collects the epoch column containing nodes within a given epoch
-        event = states[:, t].A1
-        if np.sum(event) != 1:  # if < 1 or > 1 nodes are activated, breaks the HT
-            return False
-
-        # all of these epochs below have only one node activated
-        for i, n in enumerate(event):
-            if n == 1:  # if a node is activated
-                if t == epochs - 1:  # is it the last stop in the HT
-                    if tour[i] != 0:  # and does it return to the starting locations
-                        return False
-                elif i in tour:  # or does it repeat another destination
-                    return False
-                else:  # if not, add it to the tour to review later
-                    tour[i] = t
-
-    return True
-
-
-def get_distance(states, distances):
-    '''
-    Returns the distance traveled by a state matrix given the distance matrix
-    states (np.matrix): state matrix representing nodes visited along a tour
-    distances (np.matrix): distance matrix describing the distance between any two nodes
-
-    Returns distance (float): total distance traveled on the hamiltonian tour
-    '''
-    tour = get_tour(states)
-    distance = 0
-    for i, stop in enumerate(tour[1:]):
-        distance += distances[stop, tour[i]]
-
-    return distance
-
-
-def get_tour(states):
-    '''
-    Create a string sequence cities traveled at each epoch to
-    represent the hamiltonian tour
-
-    Returns tour (string): the active tour in the current network
-    '''
-    if not hamiltonian(states):  # if a HT hasn't been completed, then distance can't be computed
-        return 'hamiltonian tour not complete'
-
-    cities, epochs = states.shape
-    tour = []
-
-    for t in range(epochs):  # for each epoch
-        # grab the array describing the states of its nodes
-        event = states[:, t].A1
-        for i, n in enumerate(event):  # and, for each node within it
-            if n == 1:  # if it's active
-                tour.append(i)  # add its index to the tour object
-
-    return tour
-
-
-def print_tour(states, node_map):
-    '''
-    Prints the tour in a readable format
-    states (np.matrix): state matrix
-    node_map (dict): dictionary of city titles for each node
-    Returns tour (str): string-formatted representation of the your taken
-    '''
-    insert = '->'
-    tour = get_tour(states)
-    print_str = f'{node_map[tour[0]]}'
-    for i in tour[1:]:
-        print_str += (insert + node_map[i])
-
-    return print_str
-
-
-def consensus(states, network):
-    '''
-    Consensus function, computing the summated values of weights and states between
-    every node (city,epoch) in the network
-    states (np.matrix): matrix representing the states of the nodes provided
-    network (np.matrix): matrix of nodes holding the weights
-
-    Returns total (int) consensus value
-    '''
-    get_values = np.vectorize(lambda n: n.get_value(states))
-    total = 0.5 * np.sum(get_values(network))
-    return total
+        return utils.print_tour(self.get_states(), self.node_map)
 
 
 def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
@@ -367,16 +264,14 @@ def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
 
         # randomnly select a node and generate a new proposed state
         activate, deactivate = machine.get_next_nodes()
-        # print('activate: %s' % activate)
-#             print('deactivate: %s' % deactivate)
         current_states = machine.get_states()
         proposed_states = machine.get_proposed_states(activate, deactivate)
 #             print('current states:\n%s' % current_states)
 #             print('proposed_states:\n%s' % proposed_states)
 
         # compute the energy of the current and proposed state and take their difference
-        E1 = consensus(current_states, machine.network)
-        E2 = consensus(proposed_states, machine.network)
+        E1 = utils.consensus(current_states, machine.network)
+        E2 = utils.consensus(proposed_states, machine.network)
         dE = E2 - E1
 
         # check if the new states meet the metropolis criterion
@@ -391,7 +286,7 @@ def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
 
         final_states = machine.get_states()
 
-        final_dist = get_distance(final_states, machine.distances)
+        final_dist = utils.get_distance(final_states, machine.distances)
         if final_dist < min_dist:
             min_dist = final_dist
             min_conf = machine.get_states()
@@ -403,11 +298,13 @@ def anneal(machine, T=500, schedule=lambda T: math.log10(T) if T > 10 else 0.1):
 
         T -= schedule(T)
 
-    print('-- annealing complete --')
+    print('-- Annealing complete --')
     print(f'final T: {T}')
+
+    print('final:')
+    print(f'\ttour = { machine.print_tour()}')
+    print(f'\tdistance = {machine.get_distance()}')
+
     print('minimum:')
-    print(f'\ttour = {print_tour(min_conf, machine.node_map)}')
+    print(f'\ttour = {utils.print_tour(min_conf, machine.node_map)}')
     print(f'\tdistance = {min_dist}')
-    # print('final:')
-    # print(f'\ttour = { machine.print_tour()}')
-    # print(f'\tdistance = {machine.get_distance()}')
