@@ -111,4 +111,4 @@ misc/
 .vscode/
 
 #output
-docs/output.txt
+# docs/output.txt
