@@ -12,8 +12,6 @@ def get_distance(states, distances):
     Returns the distance traveled by a state matrix given the distance matrix
     states (np.matrix): state matrix representing nodes visited along a tour
     distances (np.matrix): distance matrix describing the distance between any two nodes
-
-    Returns distance (float): total distance traveled on the hamiltonian tour
     '''
     tour = get_tour(states)
     distance = 0
@@ -27,8 +25,6 @@ def get_tour(states):
     '''
     Create a string sequence cities traveled at each epoch to
     represent the hamiltonian tour
-
-    Returns tour (string): the active tour in the current network
     '''
     if not hamiltonian(states):  # if a HT hasn't been completed, then distance can't be computed
         return 'hamiltonian tour not complete'
@@ -51,7 +47,6 @@ def print_tour(states, node_map):
     Prints the tour in a readable format
     states (np.matrix): state matrix
     node_map (dict): dictionary of city titles for each node
-    Returns tour (str): string-formatted representation of the your taken
     '''
     insert = '->'
     tour = get_tour(states)
@@ -65,7 +60,7 @@ def print_tour(states, node_map):
 def hamiltonian(states):
     '''
     Checks that the given state matrix creates a valid hamiltonian tour (HT)
-    Returns status (bool): True if the state matrix creates a HT; False otherwise
+    Returns status (bool) True if the state matrix creates a HT; False otherwise
     '''
     _, epochs = states.shape
     tour = {}
@@ -95,7 +90,6 @@ def consensus(states, network):
     every node (city,epoch) in the network
     states (np.matrix): matrix representing the states of the nodes provided
     network (np.matrix): matrix of nodes holding the weights
-
     Returns total (int) consensus value
     '''
     get_values = np.vectorize(lambda n: n.get_value(states))

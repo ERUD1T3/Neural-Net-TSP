@@ -1,13 +1,12 @@
-
-from machine import anneal, boltzmann
+# main.py for solving TSP
+from boltzmann import anneal, boltzmann
 from dataManip import readData
 import math
 import numpy as np
 import sys
 
-# the distance matrix to be used in the
-# traveling salesman problem
 
+# reading the input data into a np matrix
 inputfile = './data/mapCorrected.csv'
 distances = np.matrix(readData(inputfile))
 
@@ -41,4 +40,4 @@ if __name__ == '__main__':
     try:
         anneal(b, T, lambda T: math.log10(T) if T > 10 else 0.1)
     except Exception as e:
-        print(e)
+        print(f'Something went wrong!: {e}')

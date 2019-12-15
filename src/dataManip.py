@@ -3,7 +3,10 @@ import csv
 
 
 def readData(mapfile):
-    '''read data and return list graph'''
+    '''
+    read data from a csv file
+    returns a 2D list
+    '''
     graph = []
     with open(mapfile, 'r') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')

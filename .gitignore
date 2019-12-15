@@ -109,3 +109,6 @@ misc/
 
 #vscode
 .vscode/
+
+#output
+docs/output.txt
